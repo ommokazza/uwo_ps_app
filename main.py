@@ -4,23 +4,31 @@ from tkinter.filedialog import askdirectory
 from datetime import datetime
 from imgurpython import ImgurClient
 from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+
 import pandas as pd
 import requests
 import threading
+import traceback
+import sys
 import webbrowser
 
 from monitor import DirectoryMonitor
 from estimator import TensorFlowEstimator
 from formatter import FoxyFormatter
+from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
     PAD = "7"
     CLIENT_ID = '077727de8f6f20d'
+    SUGGESTION = './suggestion.png'
+    SCREENSHOT = './screenshot.png'
 
     screenshot_dir = str(Path.home())\
                    + '\\Documents\\KOEI\\GV Online Eg\\ScreenShot'
     last_screenshot = ""
     reporting = False
+    suggestion_text = None
 
     def __init__(self, estimator, formatter):
         tk.Tk.__init__(self)
@@ -42,11 +50,14 @@ class MainApp(tk.Tk):
                          command=self.menu_about, underline=0)
         self.menubar.add("separator")
         self.menubar.add("command", label="Select Directory",
-                         command=self.menu_select_directory, underline=0)
+                         command=self.menu_select_directory, underline=7)
         #TODO
         # self.menubar.add("separator")
         # self.menubar.add("command", label="Clear Screenshots",
         #                  command=self.menu_clear_screenshots, underline=0)
+        self.menubar.add("separator")
+        self.menubar.add("command", label="Send Suggestion",
+                         command=self.menu_send_suggestion, underline=0)
         self.menubar.add("separator")
         self.menubar.add("command", label="Report Screenshot",
                          command=self.menu_report_screenshot, underline=0)
@@ -107,20 +118,24 @@ class MainApp(tk.Tk):
 
     def menu_report_screenshot(self):
         if self.last_screenshot:
-            threading.Thread(target=self.__report_screenshot).start()
+            im = mrc.clear_outside(self.last_screenshot)
+            im.save(self.SCREENSHOT)
+            threading.Thread(target=self.__bug_report,
+                             args=[self.SCREENSHOT]).start()
         else:
             self.log("There is no screenshot to report.")
 
-    def __report_screenshot(self):
+    def __bug_report(self, imgpath):
         if self.reporting:
             self.log("Can not reporting for now.")
             return
         self.reporting = True
+
         try:
             self.log(">> Reporting started")
             client = ImgurClient(self.CLIENT_ID, None)
             config = {'album': "lP33mCsHgZrsO8K"}
-            image = client.upload_from_path(self.last_screenshot,
+            image = client.upload_from_path(imgpath,
                                             config=config)
             deletehash = image['deletehash']
             url = 'https://api.imgur.com/3/image/' + deletehash
@@ -128,10 +143,44 @@ class MainApp(tk.Tk):
             requests.post(url, headers=headers, data={'description': deletehash})
             self.log(image['link'])
             self.log("<< Reporting completed" )
+            self.suggestion_text = None
         except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            for l in lines:
+                self.log(l)
             self.log("<< Reporting Failed")
         finally:
             self.reporting = False
+
+    def menu_send_suggestion(self):
+        self.suggestion_window = tk.Toplevel(self)
+        self.suggestion_window.geometry("480x320")
+        self.suggestion_window.title("Send Suggestion / Bug Report")
+
+        send_btn = tk.Button(self.suggestion_window, text="Send",
+                             command=self.__send_suggestion)
+        send_btn.pack(side="bottom",
+                      padx="5", pady="5",
+                      fill="x")
+        self.suggestion_textview = tk.Text(self.suggestion_window)
+        self.suggestion_textview.pack(side="top",
+                                      padx="5", pady="5",
+                                      fill="both", expand=True)
+        if self.suggestion_text:
+            self.suggestion_textview.insert(0.0, self.suggestion_text)
+
+    def __send_suggestion(self):
+        self.suggestion_text = self.suggestion_textview.get(1.0, tk.END)
+        im = Image.new('RGB', (800, 600), (255,255,255))
+        draw = ImageDraw.Draw(im)
+        fnt = ImageFont.truetype('./NanumGothic.ttf', 12)
+        draw.multiline_text((5, 5), self.suggestion_text,
+                            font=fnt, fill=(0, 0, 0))
+        im.save(self.SUGGESTION)
+        self.suggestion_window.destroy()
+        threading.Thread(target=self.__bug_report,
+                         args=[self.SUGGESTION]).start()
 
     def copy_to_clipboard(self, event):
         df = pd.DataFrame([self.result_str.get()])
