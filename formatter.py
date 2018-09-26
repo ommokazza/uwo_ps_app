@@ -28,7 +28,7 @@ class FoxyFormatter(BaseFormatter):
         for town in labels[1:]:
             result += town[0] + " "\
                       + town[1]\
-                      + self.__get_arrow_dict(town[2]) + ", "
+                      + self.__get_arrow_dict(town[2]) + ";"
 
         return result[:-2]
 
