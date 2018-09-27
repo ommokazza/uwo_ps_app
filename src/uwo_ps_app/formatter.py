@@ -14,6 +14,7 @@ class BaseFormatter:
 
         Return:
             Formatted string (str)
+            Empty string if failed
         """
         raise NotImplementedError()
 
@@ -23,14 +24,17 @@ class FoxyFormatter(BaseFormatter):
         Refer to https://www.trevii.com/foxytrixy/UWO/
     """
     def apply(self, labels):
-        result = "?price '" + labels[0][0] + "' "
+        try:
+            if len(labels) < 2:
+                raise Exception
 
-        for town in labels[1:]:
-            result += town[0] + " "\
-                      + town[1]\
-                      + self.__get_arrow_dict(town[2]) + ";"
-
-        return result[:-2]
+            result = "?price '" + labels[0][0] + "' "
+            for town in labels[1:]:
+                result += "'%s' %s%s;" % (town[0], town[1],
+                                          self.__get_arrow_dict(town[2]))
+            return result
+        except:
+            return ""
 
     def __get_arrow_dict(self, label):
         arrows_dict = {"0" : "u", "1" : "n", "2" : "d"} # up / neutral / down
