@@ -6,6 +6,7 @@ from imgurpython import ImgurClient
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
+import os
 import pandas as pd
 import requests
 import threading
@@ -24,8 +25,9 @@ class MainApp(tk.Tk):
     SUGGESTION = './suggestion.png'
     SCREENSHOT = './screenshot.png'
 
-    screenshot_dir = str(Path.home())\
-                   + '\\Documents\\KOEI\\GV Online Eg\\ScreenShot'
+    screenshot_dir = os.path.join(str(Path.home()),
+                                  'Documents', 'KOEI',
+                                  'GV Online Eg', 'ScreenShot')
     last_screenshot = ""
     reporting = False
     suggestion_text = None
@@ -42,6 +44,8 @@ class MainApp(tk.Tk):
         self.__create_ui()
 
         self.monitor = DirectoryMonitor(self.on_screenshot_added)
+        if not os.path.exists(self.screenshot_dir):
+            os.makedirs(self.screenshot_dir)
         self.monitor.set_path(self.screenshot_dir)
 
     def __create_menus(self):
