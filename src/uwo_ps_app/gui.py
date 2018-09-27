@@ -18,6 +18,7 @@ from src.uwo_ps_app import monitor, towns_table
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
+    __version__ = "0.5"
     PAD = "7"
     CLIENT_ID = '077727de8f6f20d'
     SUGGESTION = './suggestion.png'
@@ -143,7 +144,10 @@ class MainApp(tk.Tk):
         try:
             self.log(">> Reporting started")
             client = ImgurClient(self.CLIENT_ID, None)
-            config = {'album': "lP33mCsHgZrsO8K"}
+            config = {
+                'album': "lP33mCsHgZrsO8K",
+                'title': self.__version__
+                }
             image = client.upload_from_path(imgpath,
                                             config=config)
             deletehash = image['deletehash']
