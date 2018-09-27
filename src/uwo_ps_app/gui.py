@@ -14,7 +14,7 @@ import traceback
 import sys
 import webbrowser
 
-from src.uwo_ps_app import monitor
+from src.uwo_ps_app import monitor, towns_table
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
@@ -96,15 +96,22 @@ class MainApp(tk.Tk):
         result = self.estimator.estimate(path)
         if not result:
             return
-
         self.last_screenshot = path
 
+        result.insert(1, self.__get_current_town(result))
         self.result_str.set(self.formatter.apply(result))
         self.copy_to_clipboard(None)
 
         self.log(self.result_str.get())
         self.attributes('-topmost', 1)
         self.attributes('-topmost', 0)
+
+    def __get_current_town(self, result):
+        nearbys = []
+        for (town, _, _) in result[1:]:
+            nearbys.append(town)
+        current_town = towns_table.get_current_town(nearbys)
+        return (current_town, result[0][1], result[0][2])
 
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
@@ -193,4 +200,3 @@ class MainApp(tk.Tk):
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
         self.list_box.insert(size, message)
         self.list_box.see(size)
-
