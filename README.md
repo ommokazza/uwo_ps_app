@@ -19,3 +19,5 @@ pip install -r requirements.txt</i>
 5. Open a new 'Git CMD' on the project directory.<br>
 <i>activate py35<br>
 pyinstaller --noconsole --onefile --name "UWO Price Share Aide" main.py</i><br>
+
+6. Bundle 'resources' directory and 'NanumGothic.ttf' file with .exe
