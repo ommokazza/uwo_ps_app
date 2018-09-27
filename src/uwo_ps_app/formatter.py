@@ -13,7 +13,7 @@ class BaseFormatter:
                 ~ (Max) [5] : (town5, ratws, arrows)
 
         Return:
-            formatted string (str)
+            Formatted string (str)
         """
         raise NotImplementedError()
 

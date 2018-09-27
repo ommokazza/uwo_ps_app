@@ -25,7 +25,6 @@ class TensorFlowEstimator():
         self.towns_labels = open(labels[1]).read().splitlines()
         self.rates_labels = open(labels[2]).read().splitlines()
         self.arrows_labels = open(labels[3]).read().splitlines()
-        pass
 
     def estimate(self, path):
         """Estimation function.
@@ -48,10 +47,10 @@ class TensorFlowEstimator():
         rates = self.__estimate_rates(images[1])
         arrows = self.__estimate_arrows(images[2])
         result = [(goods, rates, arrows)]
-        for i in range(3, len(images), 3):  
+        for i in range(3, len(images), 3):
             towns = self.__estimate_towns(images[i])
             rates = self.__estimate_rates(images[i+1])
-            arrows = self.__estimate_arrows(images[i+2])      
+            arrows = self.__estimate_arrows(images[i+2])
             result += [(towns, rates, arrows)]
 
         return result
@@ -62,7 +61,7 @@ class TensorFlowEstimator():
                             int(im.height / resize_ratio)))
         index = common.estimate(self.model_goods, im.tobytes())
         return self.goods_labels[index]
-    
+
     def __estimate_rates(self, im):
         index = common.estimate(self.model_rates, im.tobytes())
         return self.rates_labels[index]
