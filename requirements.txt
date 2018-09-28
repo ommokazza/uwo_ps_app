@@ -1,5 +1,7 @@
 tensorflow
 pillow
+setuptools
+wheel
 watchdog
 pandas
 imgurpython
