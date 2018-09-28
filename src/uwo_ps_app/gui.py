@@ -120,6 +120,8 @@ class MainApp(tk.Tk):
         rates = mrc.get_rates_from_bar(Image.open(path))
         rates.insert(0, 0)  # due to different index to result
         for i in range(1, len(rates)):
+            if result[i][0] == "UNKNOWN":
+                continue
             if (rates[i] - int(result[i][1])) ** 2 > 10:
                 self.log("%s: Estimated rates by AI is %s, So revise it to %d"\
                          % (result[i][0], result[i][1], rates[i]))
