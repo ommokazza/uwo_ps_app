@@ -101,6 +101,7 @@ class MainApp(tk.Tk):
         self.last_screenshot = path
 
         result.insert(1, self.__get_current_town(result))
+        result = self.__verify_and_revise_rates(result, path)
         self.result_str.set(self.formatter.apply(result))
         self.copy_to_clipboard(None)
 
@@ -114,6 +115,18 @@ class MainApp(tk.Tk):
             nearbys.append(town)
         current_town = towns_table.get_current_town(nearbys)
         return (current_town, result[0][1], result[0][2])
+
+    def __verify_and_revise_rates(self, result, path):
+        rates = mrc.get_rates_from_bar(Image.open(path))
+        rates.insert(0, 0)  # due to different index to result
+        for i in range(1, len(rates)):
+            if (rates[i] - int(result[i][1])) ** 2 > 10:
+                self.log("%s: Estimated rates by AI is %s, So revise it to %d"\
+                         % (result[i][0], result[i][1], rates[i]))
+                self.log("Please report this screenshot")
+                result[i] = (result[i][0], str(rates[i]), result[i][2])
+
+        return result
 
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
