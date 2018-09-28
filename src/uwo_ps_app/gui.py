@@ -88,7 +88,8 @@ class MainApp(tk.Tk):
                              padx=self.PAD, pady="3",
                              fill="both", expand=True)
         self.list_box = tk.Listbox(self.list_frame, highlightthickness=0,
-                                   bd=0, activestyle="none")
+                                   bd=0, activestyle="none",
+                                   selectmode=tk.EXTENDED)
         self.list_box.pack(side="top", anchor="n",
                            padx="0", pady="0",
                            fill="both", expand=True)
