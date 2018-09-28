@@ -10,7 +10,7 @@ And then, generating a text to share the market rates.
 
 3. Open 'Git CMD'
 
-4. Make python 3.5 environment. pyinstaller has some problem in python 3.6.
+4. Make python 3.5 environment. pyinstaller has some problem in python 3.6.<br>
 <i>conda create -n py35 python=3.5.6 anaconda<br>
 conda install -n py35 pip<br>
 activate py35<br>
