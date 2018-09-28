@@ -18,7 +18,7 @@ from src.uwo_ps_app import monitor, towns_table
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
-    __version__ = "0.8.1"
+    __version__ = "0.8.2"
     PAD = "7"
     CLIENT_ID = '077727de8f6f20d'
     SUGGESTION = './suggestion.png'
