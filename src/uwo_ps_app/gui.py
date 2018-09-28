@@ -18,7 +18,7 @@ from src.uwo_ps_app import monitor, towns_table
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
-    __version__ = "0.8"
+    __version__ = "0.8.1"
     PAD = "7"
     CLIENT_ID = '077727de8f6f20d'
     SUGGESTION = './suggestion.png'
@@ -51,9 +51,9 @@ class MainApp(tk.Tk):
         self.menubar = tk.Menu(self, tearoff=0, relief="raised")
         self.menubar.add("command", label="About",
                          command=self.menu_about, underline=0)
-        self.menubar.add("separator")
-        self.menubar.add("command", label="Select Directory",
-                         command=self.menu_select_directory, underline=7)
+        # self.menubar.add("separator")
+        # self.menubar.add("command", label="Select Directory",
+        #                  command=self.menu_select_directory, underline=7)
         #TODO
         # self.menubar.add("separator")
         # self.menubar.add("command", label="Clear Screenshots",
