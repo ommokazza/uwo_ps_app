@@ -2,10 +2,22 @@ import unittest
 
 from src.uwo_ps_app.formatter import BaseFormatter, FoxyFormatter
 
+
 class FormatterTest(unittest.TestCase):
     def test_base(self):
         with self.assertRaises(NotImplementedError):
             BaseFormatter().apply([])
+
+    def test_is_valid(self):
+        fm = BaseFormatter()
+        none_name = (None, "100", "0")
+        self.assertFalse(fm.is_valid(none_name))
+        empty_name = ("", "100", "0")
+        self.assertFalse(fm.is_valid(empty_name))
+        unknown_name = ("UNKNOWN", "0", "0")
+        self.assertFalse(fm.is_valid(unknown_name))
+        normal_name = ("Seville", "100", "0")
+        self.assertTrue(fm.is_valid(normal_name))
 
     def test_foxy_bad_params(self):
         fm = FoxyFormatter()

@@ -18,11 +18,28 @@ class BaseFormatter:
         """
         raise NotImplementedError()
 
+    def is_valid(self, label):
+        """Check the name of town is valid
+
+        Arguments:
+            label (tuple): (townname, rates, arrows)
+                           All elements are str type
+
+        Return:
+            True if valid
+            False if invalid
+        """
+        if not label[0] or label[0] == "UNKNOWN":
+            return False
+        return True
+
 class FoxyFormatter(BaseFormatter):
     """Concreate formatter class for foxytrixy
 
         Refer to https://www.trevii.com/foxytrixy/UWO/
     """
+    ARROW_DICT = {"0" : "u", "1" : "n", "2" : "d"} # up / neutral / down
+
     def apply(self, labels):
         try:
             if len(labels) < 2:
@@ -30,12 +47,9 @@ class FoxyFormatter(BaseFormatter):
 
             result = "?price '" + labels[0][0] + "' "
             for town in labels[1:]:
-                result += "'%s' %s%s;" % (town[0], town[1],
-                                          self.__get_arrow_dict(town[2]))
+                if self.is_valid(town):
+                    result += "'%s' %s%s;" % (town[0], town[1],
+                                              self.ARROW_DICT[town[2]])
             return result
         except:
             return ""
-
-    def __get_arrow_dict(self, label):
-        arrows_dict = {"0" : "u", "1" : "n", "2" : "d"} # up / neutral / down
-        return arrows_dict[label]
