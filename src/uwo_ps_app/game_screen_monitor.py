@@ -5,6 +5,8 @@ from PIL import Image
 from time import sleep
 
 class GameScreenMonitor():
+    GAME_SCREEN_FILE = "game_screen.png"
+
     def __init__(self, title, callback = None):
         self.title = title
         self.callback = callback
@@ -17,10 +19,9 @@ class GameScreenMonitor():
         while True:
             sleep(5)
             im = self.__get_screen()
-            if im:
-                im.save("game_screen.png")
-                if self.callback:
-                    self.callback("game_screen.png")
+            if im and self.callback:
+                im.save(self.GAME_SCREEN_FILE)
+                self.callback(self.GAME_SCREEN_FILE)
 
     def __get_screen(self):
         hwnd = win32gui.GetForegroundWindow()

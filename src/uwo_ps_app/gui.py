@@ -105,10 +105,7 @@ class MainApp(tk.Tk):
         for i in range(1, len(rates)):
             if result[i][0] == "UNKNOWN":
                 continue
-            if (rates[i] - int(result[i][1])) ** 2 > 10:
-                self.log("%s: Estimated rates by AI is %s, So revise it to %d"\
-                         % (result[i][0], result[i][1], rates[i]))
-                self.log("Please report this screenshot")
+            if (rates[i] - int(result[i][1])) ** 2 > 10:    # Revise wrong estimate
                 result[i] = (result[i][0], str(rates[i]), result[i][2])
 
         return result
@@ -191,5 +188,3 @@ class MainApp(tk.Tk):
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
         self.list_box.insert(size, message)
         self.list_box.see(size)
-
-
