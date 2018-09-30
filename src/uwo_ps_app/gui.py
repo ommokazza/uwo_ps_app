@@ -3,7 +3,6 @@ from tkinter.filedialog import askdirectory
 
 from datetime import datetime
 from imgurpython import ImgurClient
-from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 import os
@@ -14,7 +13,7 @@ import traceback
 import sys
 import webbrowser
 
-from src.uwo_ps_app import monitor, towns_table
+from src.uwo_ps_app import towns_table
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
@@ -24,17 +23,16 @@ class MainApp(tk.Tk):
     SUGGESTION = './suggestion.png'
     SCREENSHOT = './screenshot.png'
 
-    screenshot_dir = os.path.join(str(Path.home()),
-                                  'Documents', 'KOEI',
-                                  'GV Online Eg', 'ScreenShot')
+
     last_screenshot = ""
     reporting = False
     suggestion_text = None
 
-    def __init__(self, estimator, formatter):
+    def __init__(self, estimator, formatter,  monitor):
         tk.Tk.__init__(self)
         self.estimator = estimator
         self.formatter = formatter
+        self.monitor = monitor
 
         self.title("UWO Price Share Aide")
         self.geometry("640x240")
@@ -42,10 +40,7 @@ class MainApp(tk.Tk):
         self.__create_menus()
         self.__create_ui()
 
-        self.monitor = monitor.DirectoryMonitor(self.on_screenshot_added)
-        if not os.path.exists(self.screenshot_dir):
-            os.makedirs(self.screenshot_dir)
-        self.monitor.set_path(self.screenshot_dir)
+        self.monitor.set_callback(self.on_screenshot_added)
 
     def __create_menus(self):
         self.menubar = tk.Menu(self, tearoff=0, relief="raised")
@@ -133,14 +128,14 @@ class MainApp(tk.Tk):
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
 
-    def menu_select_directory(self):
-        selected_dir = askdirectory(initialdir=self.screenshot_dir)
-        if selected_dir:
-            self.screenshot_dir = selected_dir
-            self.monitor.set_path(self.screenshot_dir)
+    # def menu_select_directory(self):
+    #     selected_dir = askdirectory(initialdir=self.screenshot_dir)
+    #     if selected_dir:
+    #         self.screenshot_dir = selected_dir
+    #         self.monitor.set_path(self.screenshot_dir)
 
-    def menu_clear_screenshots(self):
-        pass#TODO
+    # def menu_clear_screenshots(self):
+    #     pass#TODO
 
     def menu_report_screenshot(self):
         if self.last_screenshot:
@@ -220,3 +215,31 @@ class MainApp(tk.Tk):
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
         self.list_box.insert(size, message)
         self.list_box.see(size)
+
+def get_uwo_screen():
+    hwnd = win32gui.GetForegroundWindow()
+    if win32gui.GetWindowText(hwnd) != "Uncharted Waters Online":
+        print("Active windows is not UWO")
+        return
+
+    wndrect = win32gui.GetWindowRect(hwnd)
+    clirect = win32gui.GetClientRect(hwnd)
+    wnd_width = wndrect[2] - wndrect[0]
+    wnd_height = wndrect[3] - wndrect[1]
+    cli_width = clirect[2]
+    cli_height = clirect[3]
+    border = int((wnd_width - cli_width) / 2)
+
+    wDC = win32gui.GetWindowDC(hwnd)
+    dcObj = win32ui.CreateDCFromHandle(wDC)
+    cDC=dcObj.CreateCompatibleDC()
+    dataBitMap = win32ui.CreateBitmap()
+    dataBitMap.CreateCompatibleBitmap(dcObj, wnd_width, wnd_height)
+    cDC.SelectObject(dataBitMap)
+    cDC.BitBlt((0,0), (wnd_width, wnd_height) , dcObj, (0,0), win32con.SRCCOPY)
+    bmpinfo = dataBitMap.GetInfo()
+    bmpstr = dataBitMap.GetBitmapBits(True)
+    im = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+                          bmpstr, 'raw', 'BGRX', 0, 1)
+    sx, sy = (border, wnd_height - cli_height - border)
+    im = im.crop([sx, sy, sx + cli_width, sy + cli_height])
