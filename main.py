@@ -4,7 +4,7 @@ from pathlib import Path
 from src.uwo_ps_app.gui import MainApp
 from src.uwo_ps_app.estimator import TensorFlowEstimator
 from src.uwo_ps_app.formatter import FoxyFormatter
-from src.uwo_ps_app.screenshot_monitor import DirectoryMonitor
+from src.uwo_ps_app import game_screen_monitor as gsm
 
 
 MODEL_DIRS = [
@@ -22,8 +22,10 @@ SCREENSHOT_DIR = os.path.join(str(Path.home()),
                               'Documents', 'KOEI',
                               'GV Online Eg', 'ScreenShot')
 
+GAME_NAME = "Uncharted Waters Online"
+
 if __name__ == "__main__":
     estimator = TensorFlowEstimator(MODEL_DIRS, LABEL_PATHS)
-    monitor = DirectoryMonitor(SCREENSHOT_DIR)
+    monitor = gsm.GameScreenMonitor(GAME_NAME)
     app = MainApp(estimator, FoxyFormatter(), monitor)
     app.mainloop()

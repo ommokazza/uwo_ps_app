@@ -40,7 +40,8 @@ class MainApp(tk.Tk):
         self.__create_menus()
         self.__create_ui()
 
-        self.monitor.set_callback(self.on_screenshot_added)
+        # self.monitor.set_callback(self.on_screenshot_added)
+        self.monitor.set_callback(self.on_screen_captured)
 
     def __create_menus(self):
         self.menubar = tk.Menu(self, tearoff=0, relief="raised")
@@ -56,9 +57,9 @@ class MainApp(tk.Tk):
         self.menubar.add("separator")
         self.menubar.add("command", label="Send Suggestion",
                          command=self.menu_send_suggestion, underline=0)
-        self.menubar.add("separator")
-        self.menubar.add("command", label="Report Screenshot",
-                         command=self.menu_report_screenshot, underline=0)
+        # self.menubar.add("separator")
+        # self.menubar.add("command", label="Report Screenshot",
+        #                  command=self.menu_report_screenshot, underline=0)
         self.config(menu=self.menubar)
 
     def __create_ui(self):
@@ -90,6 +91,21 @@ class MainApp(tk.Tk):
                            fill="both", expand=True)
 
     def on_screenshot_added(self, path):
+        result = self.estimator.estimate(path)
+        if not result:
+            return
+        self.last_screenshot = path
+
+        result.insert(1, self.__get_current_town(result))
+        result = self.__verify_and_revise_rates(result, path)
+        self.result_str.set(self.formatter.apply(result))
+        self.copy_to_clipboard(None)
+
+        self.log(self.result_str.get())
+        self.attributes('-topmost', 1)
+        self.attributes('-topmost', 0)
+
+    def on_screen_captured(self, path):
         result = self.estimator.estimate(path)
         if not result:
             return
@@ -216,30 +232,4 @@ class MainApp(tk.Tk):
         self.list_box.insert(size, message)
         self.list_box.see(size)
 
-def get_uwo_screen():
-    hwnd = win32gui.GetForegroundWindow()
-    if win32gui.GetWindowText(hwnd) != "Uncharted Waters Online":
-        print("Active windows is not UWO")
-        return
 
-    wndrect = win32gui.GetWindowRect(hwnd)
-    clirect = win32gui.GetClientRect(hwnd)
-    wnd_width = wndrect[2] - wndrect[0]
-    wnd_height = wndrect[3] - wndrect[1]
-    cli_width = clirect[2]
-    cli_height = clirect[3]
-    border = int((wnd_width - cli_width) / 2)
-
-    wDC = win32gui.GetWindowDC(hwnd)
-    dcObj = win32ui.CreateDCFromHandle(wDC)
-    cDC=dcObj.CreateCompatibleDC()
-    dataBitMap = win32ui.CreateBitmap()
-    dataBitMap.CreateCompatibleBitmap(dcObj, wnd_width, wnd_height)
-    cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0,0), (wnd_width, wnd_height) , dcObj, (0,0), win32con.SRCCOPY)
-    bmpinfo = dataBitMap.GetInfo()
-    bmpstr = dataBitMap.GetBitmapBits(True)
-    im = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                          bmpstr, 'raw', 'BGRX', 0, 1)
-    sx, sy = (border, wnd_height - cli_height - border)
-    im = im.crop([sx, sy, sx + cli_width, sy + cli_height])

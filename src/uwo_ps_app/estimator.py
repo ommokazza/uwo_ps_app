@@ -39,8 +39,11 @@ class TensorFlowEstimator():
                     ~
                 [5] = (nearby town5, rates, arrows)
         """
-        images = mrc.get_images_from_screenshot(path)
-        if len(images) < 3:
+        try:
+            images = mrc.get_images_from_screenshot(path)
+            if len(images) < 3:
+                return []
+        except:
             return []
 
         goods = self.__estimate_goods(images[0])
