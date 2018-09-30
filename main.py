@@ -18,10 +18,6 @@ LABEL_PATHS = [
     "./resources/rates.labels",
     "./resources/arrows.labels"]
 
-SCREENSHOT_DIR = os.path.join(str(Path.home()),
-                              'Documents', 'KOEI',
-                              'GV Online Eg', 'ScreenShot')
-
 GAME_NAME = "Uncharted Waters Online"
 
 if __name__ == "__main__":

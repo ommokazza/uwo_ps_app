@@ -21,10 +21,8 @@ class MainApp(tk.Tk):
     PAD = "7"
     CLIENT_ID = '077727de8f6f20d'
     SUGGESTION = './suggestion.png'
-    SCREENSHOT = './screenshot.png'
+    REPORT_IMG = './report_img.png'
 
-
-    last_screenshot = ""
     reporting = False
     suggestion_text = None
 
@@ -40,26 +38,15 @@ class MainApp(tk.Tk):
         self.__create_menus()
         self.__create_ui()
 
-        # self.monitor.set_callback(self.on_screenshot_added)
         self.monitor.set_callback(self.on_screen_captured)
 
     def __create_menus(self):
         self.menubar = tk.Menu(self, tearoff=0, relief="raised")
         self.menubar.add("command", label="About",
                          command=self.menu_about, underline=0)
-        # self.menubar.add("separator")
-        # self.menubar.add("command", label="Select Directory",
-        #                  command=self.menu_select_directory, underline=7)
-        #TODO
-        # self.menubar.add("separator")
-        # self.menubar.add("command", label="Clear Screenshots",
-        #                  command=self.menu_clear_screenshots, underline=0)
         self.menubar.add("separator")
         self.menubar.add("command", label="Send Suggestion",
                          command=self.menu_send_suggestion, underline=0)
-        # self.menubar.add("separator")
-        # self.menubar.add("command", label="Report Screenshot",
-        #                  command=self.menu_report_screenshot, underline=0)
         self.config(menu=self.menubar)
 
     def __create_ui(self):
@@ -89,21 +76,6 @@ class MainApp(tk.Tk):
         self.list_box.pack(side="top", anchor="n",
                            padx="0", pady="0",
                            fill="both", expand=True)
-
-    def on_screenshot_added(self, path):
-        result = self.estimator.estimate(path)
-        if not result:
-            return
-        self.last_screenshot = path
-
-        result.insert(1, self.__get_current_town(result))
-        result = self.__verify_and_revise_rates(result, path)
-        self.result_str.set(self.formatter.apply(result))
-        self.copy_to_clipboard(None)
-
-        self.log(self.result_str.get())
-        self.attributes('-topmost', 1)
-        self.attributes('-topmost', 0)
 
     def on_screen_captured(self, path):
         result = self.estimator.estimate(path)
@@ -144,23 +116,11 @@ class MainApp(tk.Tk):
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
 
-    # def menu_select_directory(self):
-    #     selected_dir = askdirectory(initialdir=self.screenshot_dir)
-    #     if selected_dir:
-    #         self.screenshot_dir = selected_dir
-    #         self.monitor.set_path(self.screenshot_dir)
-
-    # def menu_clear_screenshots(self):
-    #     pass#TODO
-
-    def menu_report_screenshot(self):
-        if self.last_screenshot:
-            im = mrc.clear_outside(self.last_screenshot)
-            im.save(self.SCREENSHOT)
-            threading.Thread(target=self.__bug_report,
-                             args=[self.SCREENSHOT]).start()
-        else:
-            self.log("There is no screenshot to report.")
+    def __report_screenshot(self, path):
+        im = mrc.clear_outside(path)
+        im.save(self.REPORT_IMG)
+        threading.Thread(target=self.__bug_report,
+                         args=[self.REPORT_IMG]).start()
 
     def __bug_report(self, imgpath):
         if self.reporting:
