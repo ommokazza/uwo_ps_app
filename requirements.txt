@@ -1,9 +1,8 @@
-tensorflow
-pillow
-setuptools
-wheel
-watchdog
-pandas
 imgurpython
-pyinstaller
+pillow
+pandas
+tensorflow
+pywin32
 git+https://github.com/ommokazza/uwo_ps_utils.git@master#egg=uwo_ps_utils
+pyinstaller
+cryptography
