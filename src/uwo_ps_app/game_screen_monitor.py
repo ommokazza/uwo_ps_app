@@ -17,7 +17,7 @@ class GameScreenMonitor():
 
     def __loop_thread(self):
         while True:
-            sleep(1)
+            sleep(3)
             im = self.__get_screen()
             if im and self.callback:
                 im.save(self.GAME_SCREEN_FILE)
