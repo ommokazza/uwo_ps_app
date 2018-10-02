@@ -25,6 +25,7 @@ class MainApp(tk.Tk):
 
     reporting = False
     suggestion_text = None
+    last_estimate = ""
 
     def __init__(self, estimator, formatter,  monitor):
         tk.Tk.__init__(self)
@@ -85,12 +86,15 @@ class MainApp(tk.Tk):
 
         result.insert(1, self.__get_current_town(result))
         result = self.__verify_and_revise_rates(result, path)
-        self.result_str.set(self.formatter.apply(result))
-        self.copy_to_clipboard(None)
+        fmt_str = self.formatter.apply(result)
+        if fmt_str != self.last_estimate:
+            self.last_estimate = fmt_str
+            self.result_str.set(fmt_str)
+            self.copy_to_clipboard(None)
 
-        self.log(self.result_str.get())
-        self.attributes('-topmost', 1)
-        self.attributes('-topmost', 0)
+            self.log(self.result_str.get())
+            self.attributes('-topmost', 1)
+            self.attributes('-topmost', 0)
 
     def __get_current_town(self, result):
         nearbys = []
