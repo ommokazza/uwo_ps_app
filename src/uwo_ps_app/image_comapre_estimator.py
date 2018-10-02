@@ -1,30 +1,62 @@
-"""This generate label file from screenshot image by using learned model.
+"""The estimator which is compare images not machine learing
 """
 import os
 
 from PIL import Image
-import tensorflow as tf
-from tensorflow.saved_model import tag_constants
 
-from uwo_ps_utils import common
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class ImageCompareEstimator():
     ARROW_PIXEL_XY = (7, 7)
     ARROW_RGB = [(225, 129, 38), (160, 227, 37), (30, 227, 200)]
 
-    def __init__(self, models, labels):
+    GOODS_RESIZE = (8, 4)
+
+    def __init__(self, inputs):
         """
         Arguments:
-            models : The model directory list. [goods, towns, rates, arrows]
-            labels : The label file list. [goods, towns, rates, arrows]
+            inputs : list of tuples which are pairs of paths.
+                [0]: (goods_data, goods_label)
+                [1]: (towns_data, towns_label)
+                [2]: (rates_data, rates_label) - this is not used
+                [3]: (arrows_data, arrows_label) - "arrows_data" is not used
         """
-        self.model_goods = models[0]
-        self.model_towns = models[1]
+        self.goods_labels = open(inputs[0][1]).read().splitlines()
+        self.goods_data = self.__load_goods_data(inputs[0][0])
+        self.towns_labels = open(inputs[1][1]).read().splitlines()
+        self.towns_data = self.__load_towns_data(inputs[1][0])
+        self.arrows_labels = open(inputs[3][1]).read().splitlines()
 
-        self.goods_labels = open(labels[0]).read().splitlines()
-        self.towns_labels = open(labels[1]).read().splitlines()
-        self.arrows_labels = open(labels[3]).read().splitlines()
+    def __load_goods_data(self, imgpath):
+        length = len(self.goods_labels)
+        im = Image.open(imgpath)
+        h = int(im.height / length)
+        data = []
+
+        for i in range(length):
+            goods_im = im.crop([0, i * h, im.width, (i + 1) * h])
+            data.append(goods_im.resize(self.GOODS_RESIZE).tobytes())
+            goods_im.close()
+        im.close()
+
+        return data
+
+    def __load_towns_data(self, imgpath):
+        length = len(self.towns_labels)
+        im = Image.open(imgpath).point(self.__clear_except_white)
+        h = int(im.height / length)
+        data = []
+
+        for i in range(length):
+            goods_im = im.crop([0, i * h, im.width, (i + 1) * h])
+            data.append(goods_im.tobytes())
+            goods_im.close()
+        im.close()
+
+        return data
+
+    def __clear_except_white(self, c):
+        return int(c / 250) * 255
 
     def estimate(self, path):
         """Estimation function.
@@ -39,7 +71,6 @@ class ImageCompareEstimator():
                     ~
                 [5] = (nearby town5, rates, arrows)
         """
-
         im = Image.open(path)
         try:
             goods_cell = mrc.get_selected_goods_cell_image(im)
@@ -65,11 +96,13 @@ class ImageCompareEstimator():
         return result
 
     def __estimate_goods(self, im):
-        resize_ratio = 6
-        im = im.resize((int(im.width / resize_ratio),
-                            int(im.height / resize_ratio)))
-        index = common.estimate(self.model_goods, im.tobytes())
-        return self.goods_labels[index]
+        data = im.resize(self.GOODS_RESIZE).tobytes()
+        try:
+            name = self.goods_labels[self.goods_data.index(data)]
+        except:
+            name = "WhatIsThis"
+        finally:
+            return name
 
     def __estimate_rates(self, im):
         count, _ = list(filter(self.__colored_pixel, im.getcolors()))[0]
@@ -94,6 +127,10 @@ class ImageCompareEstimator():
         return diff
 
     def __estimate_towns(self, im):
-        index = common.estimate(self.model_towns, im.tobytes())
-        return self.towns_labels[index]
-
+        data = im.point(self.__clear_except_white).tobytes()
+        try:
+            name = self.towns_labels[self.towns_data.index(data)]
+        except:
+            name = "UNKNOWN"
+        finally:
+            return name
