@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter.filedialog import askdirectory
+from tkinter import font
 
 from datetime import datetime
 from imgurpython import ImgurClient
@@ -85,7 +86,7 @@ class MainApp(tk.Tk):
         self.last_screenshot = path
 
         result.insert(1, self.__get_current_town(result))
-        result = self.__verify_and_revise_rates(result, path)
+        # result = self.__verify_and_revise_rates(result, path)
         fmt_str = self.formatter.apply(result)
         if fmt_str != self.last_estimate:
             self.last_estimate = fmt_str
@@ -103,16 +104,16 @@ class MainApp(tk.Tk):
         current_town = towns_table.get_current_town(nearbys)
         return (current_town, result[0][1], result[0][2])
 
-    def __verify_and_revise_rates(self, result, path):
-        rates = mrc.get_rates_from_bar(Image.open(path))
-        rates.insert(0, 0)  # due to different index to result
-        for i in range(1, len(rates)):
-            if result[i][0] == "UNKNOWN":
-                continue
-            if (rates[i] - int(result[i][1])) ** 2 > 10:    # Revise wrong estimate
-                result[i] = (result[i][0], str(rates[i]), result[i][2])
+    # def __verify_and_revise_rates(self, result, path):
+    #     rates = mrc.get_rates_from_bar(Image.open(path))
+    #     rates.insert(0, 0)  # due to different index to result
+    #     for i in range(1, len(rates)):
+    #         if result[i][0] == "UNKNOWN":
+    #             continue
+    #         if (rates[i] - int(result[i][1])) ** 2 > 10:    # Revise wrong estimate
+    #             result[i] = (result[i][0], str(rates[i]), result[i][2])
 
-        return result
+    #     return result
 
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
