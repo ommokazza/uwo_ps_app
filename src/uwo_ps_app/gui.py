@@ -7,7 +7,6 @@ from imgurpython import ImgurClient
 from PIL import Image, ImageDraw, ImageFont
 
 import os
-import pandas as pd
 import requests
 import threading
 import traceback
@@ -185,11 +184,12 @@ class MainApp(tk.Tk):
                          args=[self.SUGGESTION]).start()
 
     def copy_to_clipboard(self, event):
-        df = pd.DataFrame([self.result_str.get()])
-        df.to_clipboard(index=False,header=False)
+        self.clipboard_clear()
+        self.clipboard_append(self.result_str.get())
 
     def log(self, msg):
         size = self.list_box.size()
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
         self.list_box.insert(size, message)
         self.list_box.see(size)
+
