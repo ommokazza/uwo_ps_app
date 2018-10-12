@@ -67,6 +67,26 @@ class MainApp(tk.Tk):
                            padx=self.PAD, pady=self.PAD)
         self.copy_btn.bind("<Button-1>", self.copy_to_clipboard)
 
+        info_frame = tk.Frame(self, relief="flat", bd=1)
+        info_frame.pack(side="top",
+                        fill="x", expand=False)
+        interval_frame = tk.Frame(info_frame, relief="flat", bd=1)
+        interval_frame.pack(side=tk.RIGHT)
+        interval_lbl = tk.Label(interval_frame, text="Interval:")
+        interval_lbl.pack(side=tk.LEFT)
+        interval_dec = tk.Button(interval_frame, text="-", bd=1, width=1,
+                                 command=self.__dec_interval)
+        interval_dec.pack(side=tk.LEFT)
+        self.interval = tk.StringVar()
+        self.interval.set(str(self.monitor.get_interval()) + 's')
+        self.interval_widget = tk.Label(interval_frame, 
+                                        textvariable=self.interval,
+                                        relief=tk.SUNKEN, bd=1, width=6)
+        self.interval_widget.pack(side=tk.LEFT, padx=1, fill="y")
+        interval_inc = tk.Button(interval_frame, text="+", bd=1, width=1,
+                                 command=self.__inc_interval)
+        interval_inc.pack(side=tk.LEFT, padx=(0, self.PAD))
+
         self.list_frame = tk.LabelFrame(self, text=" History ")
         self.list_frame.pack(side="bottom", anchor="n",
                              padx=self.PAD, pady="3",
@@ -187,6 +207,14 @@ class MainApp(tk.Tk):
         self.clipboard_clear()
         self.clipboard_append(self.result_str.get())
 
+    def __dec_interval(self):
+        self.monitor.decrease_interval()
+        self.interval.set(str(self.monitor.get_interval()) + 's')
+
+    def __inc_interval(self):
+        self.monitor.increase_interval()
+        self.interval.set(str(self.monitor.get_interval()) + 's')
+    
     def log(self, msg):
         size = self.list_box.size()
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)

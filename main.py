@@ -1,3 +1,4 @@
+import configparser
 import os
 from pathlib import Path
 
@@ -15,9 +16,39 @@ ESTIMATOR_INPUTS = [
 ]
 
 GAME_NAME = "Uncharted Waters Online"
+CONFIG_FILE = "config.ini"
+config = configparser.ConfigParser()
+
+DEFAULT = 'Default'
+KEY_INTERVAL = 'interval'
+
+def __load_config():
+    config.read(CONFIG_FILE)
+    try:
+        config[DEFAULT]
+    except KeyError:
+        config[DEFAULT] = {}
+
+def __save_config():
+    try:
+        f = open(CONFIG_FILE, "w")
+        config.write(f)
+    except:
+        print("Something wrong while writing config")
 
 if __name__ == "__main__":
+    __load_config()
+
     estimator = ice.ImageCompareEstimator(ESTIMATOR_INPUTS)
     monitor = gsm.GameScreenMonitor(GAME_NAME)
+    try:
+        monitor.set_interval(float(config[DEFAULT][KEY_INTERVAL]))
+    except KeyError:
+        print("No interval config")
+
     app = MainApp(estimator, FoxyFormatter(), monitor)
     app.mainloop()
+
+    config[DEFAULT][KEY_INTERVAL] = str(monitor.get_interval())
+    __save_config()
+    

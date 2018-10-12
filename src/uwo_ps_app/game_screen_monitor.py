@@ -6,6 +6,7 @@ from time import sleep
 
 class GameScreenMonitor():
     GAME_SCREEN_FILE = "game_screen.png"
+    interval = 3.0
 
     def __init__(self, title, callback = None):
         self.title = title
@@ -15,9 +16,25 @@ class GameScreenMonitor():
     def set_callback(self, callback):
         self.callback = callback
 
+    def increase_interval(self):
+        self.interval = self.interval + 0.5
+
+    def decrease_interval(self):
+        if self.interval >= 1:
+            self.interval = self.interval - 0.5
+
+    def get_interval(self):
+        return self.interval
+    
+    def set_interval(self, seconds):
+        self.interval = seconds
+        if self.interval < 0.5:
+            self.interval = 0.5
+        return self.interval
+
     def __loop_thread(self):
         while True:
-            sleep(3)
+            sleep(self.interval)
             im = self.__get_screen()
             if im and self.callback:
                 im.save(self.GAME_SCREEN_FILE)
