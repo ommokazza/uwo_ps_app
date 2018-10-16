@@ -79,7 +79,7 @@ class MainApp(tk.Tk):
         interval_dec.pack(side=tk.LEFT)
         self.interval = tk.StringVar()
         self.interval.set(str(self.monitor.get_interval()) + 's')
-        self.interval_widget = tk.Label(interval_frame, 
+        self.interval_widget = tk.Label(interval_frame,
                                         textvariable=self.interval,
                                         relief=tk.SUNKEN, bd=1, width=6)
         self.interval_widget.pack(side=tk.LEFT, padx=1, fill="y")
@@ -99,7 +99,8 @@ class MainApp(tk.Tk):
                            fill="both", expand=True)
 
     def on_screen_captured(self, path):
-        result = self.estimator.estimate(path)
+        im = Image.open(path)
+        result = self.estimator.estimate(im)
         if not result:
             return
         self.last_screenshot = path
@@ -214,7 +215,7 @@ class MainApp(tk.Tk):
     def __inc_interval(self):
         self.monitor.increase_interval()
         self.interval.set(str(self.monitor.get_interval()) + 's')
-    
+
     def log(self, msg):
         size = self.list_box.size()
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
