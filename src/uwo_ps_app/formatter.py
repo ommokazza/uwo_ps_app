@@ -45,12 +45,11 @@ class FoxyFormatter(BaseFormatter):
             if len(labels) < 2:
                 raise Exception
 
-            
             l_price = ['"%s" %s%s;' % (town[0], town[1], self.ARROW_DICT[town[2]])
-                       for town in labels[1:] 
+                       for town in labels[1:]
                        if self.is_valid(town)]
             result = '?price "{0}" : {1}'.format(labels[0][0], " ".join(l_price))
-            
+
             return result
         except:
             return ""
