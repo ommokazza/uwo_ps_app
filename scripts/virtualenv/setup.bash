@@ -1,8 +1,13 @@
 #!/bin/bash -eu
 
-if [ $# -lt 1 ]; then echo "usage: $0 <VENV_DIR>"; exit; fi
+FILE_DIR=$(dirname `readlink -f ${BASH_SOURCE[0]}`)
+# FILE_DIR=$(dirname `pwd`)/scripts
+SCRIPTS_DIR=$(dirname $FILE_DIR)
+BASE_DIR=$(dirname $SCRIPTS_DIR)
+VENV_DIR=$BASE_DIR/venv
 
-VENV_DIR=$1
+#if [ $# -lt 1 ]; then echo "usage: $0 <VENV_DIR>"; exit; fi
+#VENV_DIR=$1
 
 SUDO_PIP="sudo pip3"
 SYSTEM_PIP=/usr/bin/pip3
@@ -13,9 +18,8 @@ sudo apt-get -y install python3-pip
 $SUDO_PIP install virtualenv
 # $SYSTEM_PIP install virtualenv
 
-mkdir $VENV_DIR
-
 # ECLIPSE - TURN OFF BEFORE HERE
+mkdir $VENV_DIR
 virtualenv -p python3 $VENV_DIR
 
 # HACK FIX
@@ -26,5 +30,5 @@ if [ ! -f $VENV_DIR/activate.original ]; then
 fi
 
 cat $VENV_DIR/backup/activate.original | sed 's/$PS1/${PS1-}/g' > $VENV_DIR/bin/activate
-source $VENV_DIR/bin/activate
+. $FILE_DIR/activate.bash
 
