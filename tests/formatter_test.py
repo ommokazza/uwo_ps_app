@@ -32,5 +32,5 @@ class FormatterTest(unittest.TestCase):
             ("Ceuta", "100", "1"),
             ("Faro", "100", "2")
         ]
-        expect = "?price 'Mace' 'Malaga' 180u;'Ceuta' 100n;'Faro' 100d;"
+        expect = '?price "Mace" : "Malaga" 180u; "Ceuta" 100n; "Faro" 100d;'
         self.assertEquals(expect, fm.apply(params))
