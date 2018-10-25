@@ -14,7 +14,7 @@ And then, generating a text to share the market rates.
 <i>conda create -n py35 python=3.5.6 anaconda<br>
 conda install -n py35 pip<br>
 activate py35<br>
-pip install -r requirements.txt</i>
+pip install --upgrade -r requirements.txt</i>
 
 5. Open a new 'Git CMD' on the project directory.<br>
 <i>activate py35<br>
