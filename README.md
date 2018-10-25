@@ -11,13 +11,15 @@ And then, generating a text to share the market rates.
 3. Open 'Git CMD'
 
 4. Make python 3.5 environment. pyinstaller has some problem in python 3.6.<br>
-<i>conda create -n py35 python=3.5.6 anaconda<br>
+<i>(For 32-bit environment on 64-bit windows, 'set CONDA_FORCE_32BIT=1')<br>
+conda create -n py35 python=3.5.6 anaconda<br>
 conda install -n py35 pip<br>
 activate py35<br>
-pip install -r requirements.txt</i>
+pip install --upgrade -r requirements.txt</i>
 
 5. Open a new 'Git CMD' on the project directory.<br>
-<i>activate py35<br>
+<i>(For 32-bit environment on 64-bit windows, 'set CONDA_FORCE_32BIT=1')<br>
+activate py35<br>
 pyinstaller --noconsole --onefile --name "UWO Price Share Aide" main.py</i><br>
 
 6. Bundle 'resources' directory and 'NanumGothic.ttf' file with .exe
