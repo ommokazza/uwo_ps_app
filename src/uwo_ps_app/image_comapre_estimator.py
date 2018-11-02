@@ -58,11 +58,11 @@ class ImageCompareEstimator():
     def __clear_except_white(self, c):
         return int(c / 250) * 255
 
-    def estimate(self, path):
+    def estimate(self, im):
         """Estimation function.
 
         Arguments:
-            path (str): Image file path to estimate
+            im (PIL.Image.Image) : Image to estimate
 
         Returns:
             Labels which are estimated
@@ -71,7 +71,6 @@ class ImageCompareEstimator():
                     ~
                 [5] = (nearby town5, rates, arrows)
         """
-        im = Image.open(path)
         try:
             goods_cell = mrc.get_selected_goods_cell_image(im)
             goods_imgs = mrc.get_images_from_goods_cell(goods_cell)

@@ -13,7 +13,9 @@ import traceback
 import sys
 import webbrowser
 
+from src.uwo_ps_app import plummet_status
 from src.uwo_ps_app import towns_table
+
 from uwo_ps_utils import market_rates_cropper as mrc
 
 class MainApp(tk.Tk):
@@ -79,7 +81,7 @@ class MainApp(tk.Tk):
         interval_dec.pack(side=tk.LEFT)
         self.interval = tk.StringVar()
         self.interval.set(str(self.monitor.get_interval()) + 's')
-        self.interval_widget = tk.Label(interval_frame, 
+        self.interval_widget = tk.Label(interval_frame,
                                         textvariable=self.interval,
                                         relief=tk.SUNKEN, bd=1, width=6)
         self.interval_widget.pack(side=tk.LEFT, padx=1, fill="y")
@@ -99,13 +101,21 @@ class MainApp(tk.Tk):
                            fill="both", expand=True)
 
     def on_screen_captured(self, path):
-        result = self.estimator.estimate(path)
+        im = Image.open(path)
+
+        # Market Rate
+        result = self.estimator.estimate(im)
         if not result:
             return
         self.last_screenshot = path
 
+        # Check Market Keeper's Chat
+        status = plummet_status.get_status(im)
+        if status != None:
+            print(status)
+        # TODO: When do i check this? And when discard this infomation?
+
         result.insert(1, self.__get_current_town(result))
-        # result = self.__verify_and_revise_rates(result, path)
         fmt_str = self.formatter.apply(result)
         if fmt_str != self.last_estimate:
             self.last_estimate = fmt_str
@@ -122,17 +132,6 @@ class MainApp(tk.Tk):
             nearbys.append(town)
         current_town = towns_table.get_current_town(nearbys)
         return (current_town, result[0][1], result[0][2])
-
-    # def __verify_and_revise_rates(self, result, path):
-    #     rates = mrc.get_rates_from_bar(Image.open(path))
-    #     rates.insert(0, 0)  # due to different index to result
-    #     for i in range(1, len(rates)):
-    #         if result[i][0] == "UNKNOWN":
-    #             continue
-    #         if (rates[i] - int(result[i][1])) ** 2 > 10:    # Revise wrong estimate
-    #             result[i] = (result[i][0], str(rates[i]), result[i][2])
-
-    #     return result
 
     def menu_about(self):
         webbrowser.open('https://github.com/ommokazza/uwo_ps_app')
@@ -214,7 +213,7 @@ class MainApp(tk.Tk):
     def __inc_interval(self):
         self.monitor.increase_interval()
         self.interval.set(str(self.monitor.get_interval()) + 's')
-    
+
     def log(self, msg):
         size = self.list_box.size()
         message = '(%s) %s' % (datetime.now().strftime('%H:%M:%S'), msg)
