@@ -41,19 +41,19 @@ def __init_categories_bytes():
 CATEGORIES = __init_categories_bytes()
 
 def get_status(im):
-    for chat in cropper.get_chat_msg(im):
-        teller_bytes = cropper.get_teller(chat).point(__clear_bg).tobytes()
-        if MK_BYTES == teller_bytes or MA_BYTES == teller_bytes:
-            status = __get_status(chat)
+    for chat in cropper.get_chats(im):
+        msg = cropper.get_msg(chat)
+        if msg:
+            status = __get_status(msg)
             if status == None:
                 continue
-            category = __get_category(chat)
+            category = __get_category(msg)
             return (status, category)
 
     return None
 
-def __get_status(chat):
-    t1_bytes = __get_bytes(cropper.get_first_token(chat))
+def __get_status(msg):
+    t1_bytes = __get_bytes(cropper.get_first_token_from_msg(msg))
     for welcome_bytes in WELCOMES:
         if t1_bytes == welcome_bytes:
             return STATUS_WELCOME
@@ -66,12 +66,12 @@ def __get_status(chat):
 
     return None
 
-def __get_category(chat):
-    t1_bytes = __get_bytes(cropper.get_first_token(chat))
+def __get_category(msg):
+    t1_bytes = __get_bytes(cropper.get_first_token_from_msg(msg))
     if t1_bytes == FD_BYTES:
-        c_bytes = __get_bytes(cropper.get_flooded_second_token(chat))
+        c_bytes = __get_bytes(cropper.get_flooded_second_token_from_msg(msg))
     elif t1_bytes == PM_BYTES:
-        c_bytes = __get_bytes(cropper.get_plummet_second_token(chat))
+        c_bytes = __get_bytes(cropper.get_plummet_second_token_from_msg(msg))
     else:
         return None
 
